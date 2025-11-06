@@ -23,7 +23,7 @@ jobs:
         install: >-
           mingw-w64-x86_64-gcc
           
-    - name: Build benchmark with optimizations
+    - name: Build benchmark with optimisations
       shell: msys2 {0}
       run: |
         g++ -std=c++17 -O3 -I include -o bench.exe benchmarks/perf_test.cpp

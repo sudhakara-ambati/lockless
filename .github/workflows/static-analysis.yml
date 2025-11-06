@@ -18,7 +18,7 @@ jobs:
         choco install llvm -y
       shell: powershell
         
-    - name: Analyze framework code
+    - name: Analyse framework code
       run: |
         "C:\Program Files\LLVM\bin\clang-tidy" examples/test1.cpp --checks="-*,performance-*,modernize-use-nullptr" --header-filter=".*lockless.*" -- -std=c++17 -I include
       shell: cmd
