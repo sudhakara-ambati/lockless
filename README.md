@@ -29,7 +29,7 @@ queue.EnqueueData(42);
 queue.CleanupSharedMemory();
 
 Consumer Process:
-
+```cpp
     #include "lockless.h"
     
     SharedMemory<int> queue;
@@ -41,7 +41,7 @@ Consumer Process:
         std::cout << "Received: " << value << "\n";
     }
     queue.CleanupSharedMemory();
-
+```
 ## Why Lock-Free?
 
 Traditional queues use mutexes which cause context switches and can deadlock. Lock-free queues use atomic compare-and-swap operations that execute at user level without OS involvement, resulting in lower latency and better performance.
@@ -53,9 +53,9 @@ The shared memory layout consists of a header with atomic head/tail pointers and
 ## Building
 
 Requires Windows and a C++17 compiler:
-
+```bash
 g++ -std=c++17 -I include -o test1.exe examples/test1.cpp
-
+```
 ## CI/CD
 
 Automated testing with GitHub Actions:
