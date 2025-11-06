@@ -2,16 +2,18 @@
 #include <iostream>
 #include <string>
 
+const size_t BUFFER_SIZE = 4096;
+
 int main() {
     SharedMemory<int> sharedMem;
     
     std::string memName = "MyTestBuffer";
-    size_t size = 4096;
+    size_t size = BUFFER_SIZE;
 
     std::cout << "Creating shared memory..." << std::endl;
-    HANDLE h = sharedMem.CreateSharedMemory(memName, size);
+    HANDLE handle = sharedMem.CreateSharedMemory(memName, size);
     
-    if (h == NULL) {
+    if (handle == NULL) {
         std::cerr << "Failed!" << std::endl;
         return 1;
     }
@@ -42,24 +44,29 @@ int main() {
             }
             
         } else if (choice == 3) {
-            size_t h = sharedMem.header->head.load(std::memory_order_acquire);
-            size_t t = sharedMem.header->tail.load(std::memory_order_acquire);
-            size_t cap = sharedMem.header->capacity;
+            size_t head = sharedMem.header->head.load(std::memory_order_acquire);
+            size_t tail = sharedMem.header->tail.load(std::memory_order_acquire);
+            size_t capacity = sharedMem.header->capacity;
             
-            std::cout << "\nHead: " << h << " Tail: " << t << " Cap: " << cap << std::endl;
+            std::cout << "\nHead: " << head << " Tail: " << tail << " Cap: " << capacity << std::endl;
             
-            size_t count = (h >= t) ? (h - t) : (cap - t + h);
+            size_t count = (head >= tail) ? (head - tail) : (capacity - tail + head);
             std::cout << "Items: " << count << std::endl;
             
-            // simple visual
             std::cout << "[";
-            for (size_t i = 0; i < cap; i++) {
-                if (i == h && i == t) std::cout << ".";
-                else if (i == h) std::cout << "H";
-                else if (i == t) std::cout << "T";
-                else if ((t < h && i > t && i < h) || (t > h && (i > t || i < h))) 
+            for (size_t i = 0; i < capacity; i++) {
+                if (i == head && i == tail) {
+                    std::cout << ".";
+                } else if (i == head) {
+                    std::cout << "H";
+                } else if (i == tail) {
+                    std::cout << "T";
+                } else if ((tail < head && i > tail && i < head) || 
+                           (tail > head && (i > tail || i < head))) {
                     std::cout << "X";
-                else std::cout << "_";
+                } else {
+                    std::cout << "_";
+                }
             }
             std::cout << "]" << std::endl;
             
