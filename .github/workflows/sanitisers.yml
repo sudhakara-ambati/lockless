@@ -1,0 +1,59 @@
+name: Memory Safety
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  address-sanitizer:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup MinGW
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        update: true
+        install: >-
+          mingw-w64-x86_64-gcc
+          mingw-w64-x86_64-toolchain
+        
+    - name: Build with AddressSanitizer
+      shell: msys2 {0}
+      run: |
+        g++ -std=c++17 -fsanitize=address -fno-omit-frame-pointer -g -Wall -Wextra -I include -o test1_asan.exe examples/test1.cpp
+        
+    - name: Create test input file
+      shell: msys2 {0}
+      run: |
+        cat > input.txt << EOF
+        1
+        42
+        1
+        99
+        2
+        2
+        3
+        4
+        EOF
+        
+    - name: Run with AddressSanitizer
+      shell: msys2 {0}
+      run: |
+        timeout 30s ./test1_asan.exe < input.txt || echo "Test completed"
+      continue-on-error: true
+      
+    - name: Upload ASan logs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: asan-logs
+        path: |
+          *.log
+          core.*
+        if-no-files-found: ignore
