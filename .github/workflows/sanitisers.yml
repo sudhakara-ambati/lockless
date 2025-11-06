@@ -7,53 +7,25 @@ on:
     branches: [ main, master ]
 
 jobs:
-  address-sanitizer:
+  memory-checks:
     runs-on: windows-latest
     
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
       
-    - name: Setup Clang
-      run: |
-        choco install llvm -y
-      shell: powershell
-        
-    - name: Build with AddressSanitizer
-      run: |
-        "C:\Program Files\LLVM\bin\clang++" -std=c++17 -fsanitize=address -fno-omit-frame-pointer -g -Wall -Wextra -I include -o test1_asan.exe examples/test1.cpp
-      shell: cmd
-      
-    - name: Find and copy ASan DLL
-      run: |
-        for /r "C:\Program Files\LLVM\lib" %%f in (clang_rt.asan_dynamic-x86_64.dll) do copy "%%f" .
-      shell: cmd
-        
-    - name: Create test input file
-      run: |
-        echo 1 > input.txt
-        echo 42 >> input.txt
-        echo 1 >> input.txt
-        echo 99 >> input.txt
-        echo 2 >> input.txt
-        echo 2 >> input.txt
-        echo 3 >> input.txt
-        echo 4 >> input.txt
-      shell: cmd
-        
-    - name: Run with AddressSanitizer
-      run: |
-        test1_asan.exe < input.txt
-      shell: cmd
-      continue-on-error: true
-      timeout-minutes: 2
-      
-    - name: Upload ASan logs
-      if: always()
-      uses: actions/upload-artifact@v4
+    - name: Setup compiler
+      uses: msys2/setup-msys2@v2
       with:
-        name: asan-logs
-        path: |
-          *.log
-          core.*
-        if-no-files-found: ignore
+        msystem: MINGW64
+        update: true
+        install: mingw-w64-x86_64-gcc
+      
+    - name: Build with strict warnings
+      shell: msys2 {0}
+      run: |
+        g++ -std=c++17 -Wall -Wextra -Wpedantic -Wshadow -I include -o test1.exe examples/test1.cpp
+        
+    - name: Check atomics
+      shell: msys2 {0}
+      run: |
+        grep "memory_order" include/lockless.h

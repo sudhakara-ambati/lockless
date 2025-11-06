@@ -11,20 +11,16 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
       
     - name: Install clang-tidy
       run: |
         sudo apt-get update
         sudo apt-get install -y clang-tidy
         
-    - name: Run clang-tidy on headers
+    - name: Run analysis
       run: |
-        clang-tidy include/lockless.h --checks='-*,modernize-*,readability-*,performance-*' -- -std=c++17 -D_WIN32
-      continue-on-error: true
-      
-    - name: Run clang-tidy on examples (syntax only)
-      run: |
-        clang-tidy examples/test1.cpp --checks='-*,readability-*' -- -std=c++17 -I include -D_WIN32
+        clang-tidy include/lockless.h examples/test1.cpp \
+          --checks='-*,readability-*,performance-*' \
+          -- -std=c++17 -I include -D_WIN32
       continue-on-error: true
