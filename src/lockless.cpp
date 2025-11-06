@@ -8,22 +8,22 @@ HANDLE SharedMemory<T>::CreateSharedMemory(std::string& name, size_t& size) {
 
     HANDLE sharedMemorySpace = CreateFileMapping(
         INVALID_HANDLE_VALUE,
-        NULL,
+        nullptr,
         PAGE_READWRITE,
         0,
         static_cast<DWORD>(size),
         name.c_str());
 
-    if (sharedMemorySpace == NULL) {
-        std::cerr << "Could not create file mapping!" << std::endl;
-        return NULL;
+    if (sharedMemorySpace == nullptr) {
+        std::cerr << "Could not create file mapping!\n";
+        return nullptr;
     }
 
     pBuf = MapViewOfFile(sharedMemorySpace, FILE_MAP_ALL_ACCESS, 0, 0, size);
     if (pBuf == nullptr) {
-        std::cerr << "Could not map view of file!" << std::endl;
+        std::cerr << "Could not map view of file!\n";
         CloseHandle(sharedMemorySpace);
-        return NULL;
+        return nullptr;
     }
 
     header = reinterpret_cast<CircularBufferHeader<T>*>(pBuf);
@@ -36,17 +36,17 @@ HANDLE SharedMemory<T>::CreateSharedMemory(std::string& name, size_t& size) {
     header->elementSize = sizeof(T);
 
     if (header->capacity == 0) {
-        std::cerr << "Shared memory too small for any elements." << std::endl;
+        std::cerr << "Shared memory too small for any elements.\n";
         UnmapViewOfFile(pBuf);
         CloseHandle(sharedMemorySpace);
         pBuf = nullptr;
         header = nullptr;
         data = nullptr;
-        hMapFile = NULL;
-        return NULL;
+        hMapFile = nullptr;
+        return nullptr;
     }
 
-    std::cout << "Shared memory created: " << name << " of size " << size << std::endl;
+    std::cout << "Shared memory created: " << name << " of size " << size << "\n";
     return sharedMemorySpace;
 }
 
@@ -58,16 +58,16 @@ HANDLE SharedMemory<T>::OpenSharedMemory(std::string& name) {
         FALSE,
         name.c_str());
 
-    if (sharedMemorySpace == NULL) {
-        std::cerr << "Failed to open shared memory: " << name << std::endl;
-        return NULL;
+    if (sharedMemorySpace == nullptr) {
+        std::cerr << "Failed to open shared memory: " << name << "\n";
+        return nullptr;
     }
 
     pBuf = MapViewOfFile(sharedMemorySpace, FILE_MAP_ALL_ACCESS, 0, 0, 0);
     if (pBuf == nullptr) {
-        std::cerr << "Failed to map view for: " << name << std::endl;
+        std::cerr << "Failed to map view for: " << name << "\n";
         CloseHandle(sharedMemorySpace);
-        return NULL;
+        return nullptr;
     }
 
     header = reinterpret_cast<CircularBufferHeader<T>*>(pBuf);
@@ -75,14 +75,14 @@ HANDLE SharedMemory<T>::OpenSharedMemory(std::string& name) {
     hMapFile = sharedMemorySpace;
 
     if (header->elementSize != sizeof(T)) {
-        std::cerr << "Element size mismatch in shared memory." << std::endl;
+        std::cerr << "Element size mismatch in shared memory.\n";
         UnmapViewOfFile(pBuf);
         CloseHandle(sharedMemorySpace);
         pBuf = nullptr;
         header = nullptr;
         data = nullptr;
-        hMapFile = NULL;
-        return NULL;
+        hMapFile = nullptr;
+        return nullptr;
     }
 
     return sharedMemorySpace;
@@ -95,9 +95,9 @@ void SharedMemory<T>::CleanupSharedMemory() {
         pBuf = nullptr;
     }
 
-    if (hMapFile != NULL) {
+    if (hMapFile != nullptr) {
         CloseHandle(hMapFile);
-        hMapFile = NULL;
+        hMapFile = nullptr;
     }
 
     header = nullptr;
@@ -107,18 +107,18 @@ void SharedMemory<T>::CleanupSharedMemory() {
 template<typename T>
 void SharedMemory<T>::EnqueueData(const T& item) {
     if (header == nullptr || data == nullptr) {
-        std::cerr << "Shared memory not initialized for enqueue." << std::endl;
+        std::cerr << "Shared memory not initialized for enqueue.\n";
         return;
     }
 
     if (header->elementSize != sizeof(T)) {
-        std::cerr << "Element size mismatch in enqueue." << std::endl;
+        std::cerr << "Element size mismatch in enqueue.\n";
         return;
     }
 
     const size_t capacity = header->capacity;
     if (capacity == 0) {
-        std::cerr << "Buffer capacity is zero." << std::endl;
+        std::cerr << "Buffer capacity is zero.\n";
         return;
     }
 
@@ -127,7 +127,7 @@ void SharedMemory<T>::EnqueueData(const T& item) {
     const size_t nextHead = (head + 1) % capacity;
 
     if (nextHead == tail) {
-        std::cerr << "Buffer is full." << std::endl;
+        std::cerr << "Buffer is full.\n";
         return;
     }
 
@@ -138,13 +138,13 @@ void SharedMemory<T>::EnqueueData(const T& item) {
 template<typename T>
 bool SharedMemory<T>::ReadData(T& item) {
     if (header == nullptr || data == nullptr) {
-        std::cerr << "Shared memory not initialized for read." << std::endl;
+        std::cerr << "Shared memory not initialized for read.\n";
         return false;
     }
 
     const size_t capacity = header->capacity;
     if (capacity == 0) {
-        std::cerr << "Buffer capacity is zero." << std::endl;
+        std::cerr << "Buffer capacity is zero.\n";
         return false;
     }
 
