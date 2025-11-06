@@ -11,6 +11,9 @@ jobs:
   benchmark:
     runs-on: windows-latest
     
+    permissions:
+      contents: write
+    
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -23,7 +26,7 @@ jobs:
         install: >-
           mingw-w64-x86_64-gcc
           
-    - name: Build benchmark with optimisations
+    - name: Build benchmark with optimizations
       shell: msys2 {0}
       run: |
         g++ -std=c++17 -O3 -I include -o bench.exe benchmarks/perf_test.cpp
@@ -49,3 +52,5 @@ jobs:
         comment-on-alert: true
         fail-on-alert: false
         alert-comment-cc-users: '@sudhakara-ambati'
+        gh-pages-branch: gh-pages
+        benchmark-data-dir-path: dev/bench
