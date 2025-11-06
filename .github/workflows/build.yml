@@ -14,18 +14,29 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Setup MSVC
-      uses: microsoft/setup-msbuild@v2
+    - name: Setup MinGW
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        update: true
+        install: >-
+          mingw-w64-x86_64-gcc
+          mingw-w64-x86_64-toolchain
       
     - name: Build test1
+      shell: msys2 {0}
       run: |
-        cl /EHsc /std:c++17 /I include examples/test1.cpp /Fe:test1.exe
-      shell: cmd
+        g++ -std=c++17 -Wall -Wextra -O2 -I include -o test1.exe examples/test1.cpp
         
     - name: Check build output
+      shell: msys2 {0}
       run: |
-        if exist test1.exe (echo Build succeeded) else (echo Build failed && exit 1)
-      shell: cmd
+        if [ -f test1.exe ]; then
+          echo "Build succeeded"
+        else
+          echo "Build failed"
+          exit 1
+        fi
       
     - name: Upload artifact
       uses: actions/upload-artifact@v4
