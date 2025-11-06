@@ -30,17 +30,17 @@ queue.CleanupSharedMemory();
 
 Consumer Process:
 
-#include "lockless.h"
-
-SharedMemory<int> queue;
-std::string name = "MyQueue";
-
-queue.OpenSharedMemory(name);
-int value;
-if (queue.ReadData(value)) {
-    std::cout << "Received: " << value << "\n";
-}
-queue.CleanupSharedMemory();
+    #include "lockless.h"
+    
+    SharedMemory<int> queue;
+    std::string name = "MyQueue";
+    
+    queue.OpenSharedMemory(name);
+    int value;
+    if (queue.ReadData(value)) {
+        std::cout << "Received: " << value << "\n";
+    }
+    queue.CleanupSharedMemory();
 
 ## Why Lock-Free?
 
