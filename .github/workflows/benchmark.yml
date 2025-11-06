@@ -1,0 +1,51 @@
+name: Performance Benchmarks
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  benchmark:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup MSYS2
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        update: true
+        install: >-
+          mingw-w64-x86_64-gcc
+          
+    - name: Build benchmark with optimizations
+      shell: msys2 {0}
+      run: |
+        g++ -std=c++17 -O3 -I include -o bench.exe benchmarks/perf_test.cpp
+        
+    - name: Run benchmarks
+      shell: msys2 {0}
+      run: |
+        ./bench.exe
+        
+    - name: Display results
+      shell: msys2 {0}
+      run: |
+        cat benchmark_results.json
+        
+    - name: Store benchmark result
+      uses: benchmark-action/github-action-benchmark@v1
+      with:
+        tool: 'customBiggerIsBetter'
+        output-file-path: benchmark_results.json
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        auto-push: true
+        alert-threshold: '150%'
+        comment-on-alert: true
+        fail-on-alert: false
+        alert-comment-cc-users: '@sudhakara-ambati'
