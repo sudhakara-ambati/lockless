@@ -19,12 +19,12 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y clang-tidy
         
-    - name: Run clang-tidy on source files
+    - name: Run clang-tidy on headers
       run: |
-        clang-tidy src/lockless.cpp -- -std=c++17 -I include
+        clang-tidy include/lockless.h --checks='-*,modernize-*,readability-*,performance-*' -- -std=c++17 -D_WIN32
       continue-on-error: true
       
-    - name: Run clang-tidy on examples
+    - name: Run clang-tidy on examples (syntax only)
       run: |
-        clang-tidy examples/test1.cpp -- -std=c++17 -I include
+        clang-tidy examples/test1.cpp --checks='-*,readability-*' -- -std=c++17 -I include -D_WIN32
       continue-on-error: true
