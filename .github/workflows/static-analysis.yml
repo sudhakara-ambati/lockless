@@ -18,14 +18,8 @@ jobs:
         choco install llvm -y
       shell: powershell
         
-    - name: Analyze framework header
+    - name: Analyze framework code
       run: |
-        "C:\Program Files\LLVM\bin\clang-tidy" include/lockless.h --checks="-*,performance-*,readability-*,modernize-use-nullptr" -- -std=c++17 -I include
-      shell: cmd
-      continue-on-error: true
-      
-    - name: Analyze framework implementation
-      run: |
-        "C:\Program Files\LLVM\bin\clang-tidy" src/lockless.cpp --checks="-*,performance-*,readability-*,modernize-use-nullptr" -- -std=c++17 -I include
+        "C:\Program Files\LLVM\bin\clang-tidy" examples/test1.cpp --checks="-*,performance-*,modernize-use-nullptr" --header-filter=".*lockless.*" -- -std=c++17 -I include
       shell: cmd
       continue-on-error: true

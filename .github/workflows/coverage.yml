@@ -32,20 +32,19 @@ jobs:
       continue-on-error: true
       timeout-minutes: 1
         
-    - name: Generate coverage for framework files
+    - name: Generate coverage report
       shell: msys2 {0}
       run: |
-        find . -name "*.gcda" -o -name "*.gcno"
-        gcov test1_cov.exe
+        gcov -r test1_cov-test1.gcda
         lcov --capture --directory . --output-file coverage.info --rc lcov_branch_coverage=1
-        lcov --extract coverage.info '**/include/lockless.h' '**/src/lockless.cpp' --output-file coverage_filtered.info
-        lcov --list coverage_filtered.info
+        lcov --remove coverage.info '/usr/*' '*/mingw64/*' --output-file coverage.info
+        lcov --list coverage.info
       continue-on-error: true
         
     - name: Upload to Codecov
       uses: codecov/codecov-action@v4
       with:
-        files: ./coverage_filtered.info
+        files: ./coverage.info
         fail_ci_if_error: false
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

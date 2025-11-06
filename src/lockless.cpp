@@ -20,7 +20,7 @@ HANDLE SharedMemory<T>::CreateSharedMemory(std::string& name, size_t& size) {
     }
 
     pBuf = MapViewOfFile(sharedMemorySpace, FILE_MAP_ALL_ACCESS, 0, 0, size);
-    if (pBuf == NULL) {
+    if (pBuf == nullptr) {
         std::cerr << "Could not map view of file!" << std::endl;
         CloseHandle(sharedMemorySpace);
         return NULL;
@@ -64,7 +64,7 @@ HANDLE SharedMemory<T>::OpenSharedMemory(std::string& name) {
     }
 
     pBuf = MapViewOfFile(sharedMemorySpace, FILE_MAP_ALL_ACCESS, 0, 0, 0);
-    if (pBuf == NULL) {
+    if (pBuf == nullptr) {
         std::cerr << "Failed to map view for: " << name << std::endl;
         CloseHandle(sharedMemorySpace);
         return NULL;
