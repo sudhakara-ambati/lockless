@@ -182,13 +182,13 @@ int main() {
     
     std::vector<BenchmarkResult> results;
     
-    std::cout << "Running Enqueue benchmark...\n";
+    std::cout << "Running Enqueue benchmark..\n";
     results.push_back(benchmarkEnqueue(NUM_OPERATIONS));
     
-    std::cout << "Running Dequeue benchmark...\n";
+    std::cout << "Running Dequeue benchmark..\n";
     results.push_back(benchmarkDequeue(NUM_OPERATIONS));
     
-    std::cout << "Running RoundTrip benchmark...\n";
+    std::cout << "Running RoundTrip benchmark..\n";
     results.push_back(benchmarkRoundTrip(NUM_OPERATIONS));
     
     printResults(results);
