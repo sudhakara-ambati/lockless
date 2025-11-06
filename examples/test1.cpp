@@ -1,36 +1,75 @@
 #include "../include/lockless.h"
+#include <iostream>
 #include <string>
-#include <thread>
-#include <chrono>
 
 int main() {
     SharedMemory<int> sharedMem;
     
-    sharedMem.head.store(0);
-    sharedMem.tail.store(0);
-    
-    std::string memoryName = "MyTestBuffer";
-    size_t bufferSize = 1024;
+    std::string memName = "MyTestBuffer";
+    size_t size = 4096;
 
-    std::cout << "Creating Shared Memory" << std::endl;
-    HANDLE handle = sharedMem.CreateSharedMemory(memoryName, bufferSize);
+    std::cout << "Creating shared memory..." << std::endl;
+    HANDLE h = sharedMem.CreateSharedMemory(memName, size);
     
-    std::cout << "\n Opening Shared Memory" << std::endl;
-    handle = sharedMem.OpenSharedMemory(memoryName);
-    if (handle != NULL) {
-        std::cout << "Successfully opened shared memory!" << std::endl;
+    if (h == NULL) {
+        std::cerr << "Failed!" << std::endl;
+        return 1;
     }
-    
-    std::cout << "\n Cleaning Up Shared Memory" << std::endl;
-    sharedMem.CleanupSharedMemory(memoryName);
-    
-    std::cout << "\n Final State" << std::endl;
-    std::cout << "Head: " << sharedMem.head.load() << std::endl;
-    std::cout << "Tail: " << sharedMem.tail.load() << std::endl;
-    
-    std::this_thread::sleep_for(std::chrono::seconds(5));
 
+    std::cout << "Success! Queue capacity: " << sharedMem.header->capacity << std::endl;
+
+    bool running = true;
+    while (running) {
+        std::cout << "\n1. Add\n2. Remove\n3. Status\n4. Quit\nChoice: ";
+        
+        int choice;
+        std::cin >> choice;
+
+        if (choice == 1) {
+            std::cout << "Value: ";
+            int val;
+            std::cin >> val;
+            
+            sharedMem.EnqueueData(val);
+            std::cout << "Added " << val << std::endl;
+            
+        } else if (choice == 2) {
+            int val;
+            if (sharedMem.ReadData(val)) {
+                std::cout << "Read: " << val << std::endl;
+            } else {
+                std::cout << "Empty!" << std::endl;
+            }
+            
+        } else if (choice == 3) {
+            size_t h = sharedMem.header->head.load(std::memory_order_acquire);
+            size_t t = sharedMem.header->tail.load(std::memory_order_acquire);
+            size_t cap = sharedMem.header->capacity;
+            
+            std::cout << "\nHead: " << h << " Tail: " << t << " Cap: " << cap << std::endl;
+            
+            size_t count = (h >= t) ? (h - t) : (cap - t + h);
+            std::cout << "Items: " << count << std::endl;
+            
+            // simple visual
+            std::cout << "[";
+            for (size_t i = 0; i < cap; i++) {
+                if (i == h && i == t) std::cout << ".";
+                else if (i == h) std::cout << "H";
+                else if (i == t) std::cout << "T";
+                else if ((t < h && i > t && i < h) || (t > h && (i > t || i < h))) 
+                    std::cout << "X";
+                else std::cout << "_";
+            }
+            std::cout << "]" << std::endl;
+            
+        } else if (choice == 4) {
+            running = false;
+        }
+    }
+
+    sharedMem.CleanupSharedMemory();
+    std::cout << "Done" << std::endl;
     
-    std::cout << "Program finished!" << std::endl;
     return 0;
 }
