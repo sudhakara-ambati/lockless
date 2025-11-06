@@ -17,7 +17,7 @@ This project implements a single-producer single-consumer (SPSC) lock-free queue
 ## Quick Example
 
 Producer Process:
-
+```cpp
 #include "lockless.h"
 
 SharedMemory<int> queue;
@@ -27,7 +27,7 @@ size_t size = 4096;
 queue.CreateSharedMemory(name, size);
 queue.EnqueueData(42);
 queue.CleanupSharedMemory();
-
+```cpp
 Consumer Process:
 ```cpp
 #include "lockless.h"
