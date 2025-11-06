@@ -18,9 +18,16 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y clang-tidy
         
-    - name: Run analysis
+    - name: Analyze framework header
       run: |
-        clang-tidy include/lockless.h examples/test1.cpp \
-          --checks='-*,readability-*,performance-*' \
+        clang-tidy include/lockless.h \
+          --checks='-*,performance-*,readability-*,modernize-use-nullptr' \
+          -- -std=c++17 -D_WIN32 -x c++-header
+      continue-on-error: true
+      
+    - name: Analyze framework implementation
+      run: |
+        clang-tidy src/lockless.cpp \
+          --checks='-*,performance-*,readability-*,modernize-use-nullptr' \
           -- -std=c++17 -I include -D_WIN32
       continue-on-error: true

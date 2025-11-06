@@ -7,39 +7,25 @@ on:
     branches: [ main, master ]
 
 jobs:
-  build-windows:
+  build:
     runs-on: windows-latest
     
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
       
-    - name: Setup MinGW
+    - name: Setup compiler
       uses: msys2/setup-msys2@v2
       with:
         msystem: MINGW64
         update: true
-        install: >-
-          mingw-w64-x86_64-gcc
-          mingw-w64-x86_64-toolchain
-      
-    - name: Build test1
-      shell: msys2 {0}
-      run: |
-        g++ -std=c++17 -Wall -Wextra -O2 -I include -o test1.exe examples/test1.cpp
+        install: mingw-w64-x86_64-gcc
         
-    - name: Check build output
+    - name: Build framework with example
       shell: msys2 {0}
       run: |
-        if [ -f test1.exe ]; then
-          echo "Build succeeded"
-        else
-          echo "Build failed"
-          exit 1
-        fi
-      
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: test1-executable
-        path: test1.exe
+        g++ -std=c++17 -Wall -Wextra -I include -o test1.exe examples/test1.cpp
+        
+    - name: Verify build artifacts
+      shell: msys2 {0}
+      run: |
+        ls -lh test1.exe

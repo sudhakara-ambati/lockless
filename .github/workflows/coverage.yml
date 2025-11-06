@@ -20,27 +20,28 @@ jobs:
           mingw-w64-x86_64-gcc
           mingw-w64-x86_64-lcov
         
-    - name: Build with coverage instrumentation
+    - name: Build with coverage
       shell: msys2 {0}
       run: |
         g++ -std=c++17 --coverage -I include -o test1_cov.exe examples/test1.cpp
         
-    - name: Run test program
+    - name: Run to generate coverage data
       shell: msys2 {0}
       run: |
         echo -e "1\n42\n1\n99\n2\n2\n3\n4" | ./test1_cov.exe
       continue-on-error: true
       timeout-minutes: 1
         
-    - name: Generate coverage report
+    - name: Generate coverage for framework files
       shell: msys2 {0}
       run: |
-        gcov examples/test1.cpp
+        gcov -r examples/test1.cpp
         lcov --capture --directory . --output-file coverage.info
-        lcov --remove coverage.info '/usr/*' --output-file coverage.info
+        lcov --extract coverage.info '*/include/lockless.h' '*/src/lockless.cpp' --output-file coverage.info
+        lcov --list coverage.info
       continue-on-error: true
         
-    - name: Upload coverage to Codecov
+    - name: Upload to Codecov
       uses: codecov/codecov-action@v4
       with:
         files: ./coverage.info
