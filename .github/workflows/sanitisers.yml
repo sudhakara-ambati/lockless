@@ -14,14 +14,19 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Setup Clang with LLVM
+    - name: Setup Clang
       run: |
         choco install llvm -y
       shell: powershell
         
     - name: Build with AddressSanitizer
       run: |
-        clang++ -std=c++17 -fsanitize=address -fno-omit-frame-pointer -g -Wall -Wextra -I include -o test1_asan.exe examples/test1.cpp
+        "C:\Program Files\LLVM\bin\clang++" -std=c++17 -fsanitize=address -fno-omit-frame-pointer -g -Wall -Wextra -I include -o test1_asan.exe examples/test1.cpp
+      shell: cmd
+      
+    - name: Find and copy ASan DLL
+      run: |
+        for /r "C:\Program Files\LLVM\lib" %%f in (clang_rt.asan_dynamic-x86_64.dll) do copy "%%f" .
       shell: cmd
         
     - name: Create test input file
