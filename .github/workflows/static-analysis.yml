@@ -8,26 +8,24 @@ on:
 
 jobs:
   clang-tidy:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     
     steps:
     - uses: actions/checkout@v4
       
-    - name: Install clang-tidy
+    - name: Setup LLVM
       run: |
-        sudo apt-get update
-        sudo apt-get install -y clang-tidy
+        choco install llvm -y
+      shell: powershell
         
     - name: Analyze framework header
       run: |
-        clang-tidy include/lockless.h \
-          --checks='-*,performance-*,readability-*,modernize-use-nullptr' \
-          -- -std=c++17 -D_WIN32 -x c++-header
+        "C:\Program Files\LLVM\bin\clang-tidy" include/lockless.h --checks="-*,performance-*,readability-*,modernize-use-nullptr" -- -std=c++17 -I include
+      shell: cmd
       continue-on-error: true
       
     - name: Analyze framework implementation
       run: |
-        clang-tidy src/lockless.cpp \
-          --checks='-*,performance-*,readability-*,modernize-use-nullptr' \
-          -- -std=c++17 -I include -D_WIN32
+        "C:\Program Files\LLVM\bin\clang-tidy" src/lockless.cpp --checks="-*,performance-*,readability-*,modernize-use-nullptr" -- -std=c++17 -I include
+      shell: cmd
       continue-on-error: true
