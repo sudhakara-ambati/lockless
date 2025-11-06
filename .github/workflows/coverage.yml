@@ -1,0 +1,49 @@
+name: Code Coverage
+
+on:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  coverage:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+      
+    - name: Setup compiler
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        update: true
+        install: >-
+          mingw-w64-x86_64-gcc
+          mingw-w64-x86_64-lcov
+        
+    - name: Build with coverage instrumentation
+      shell: msys2 {0}
+      run: |
+        g++ -std=c++17 --coverage -I include -o test1_cov.exe examples/test1.cpp
+        
+    - name: Run test program
+      shell: msys2 {0}
+      run: |
+        echo -e "1\n42\n1\n99\n2\n2\n3\n4" | ./test1_cov.exe
+      continue-on-error: true
+      timeout-minutes: 1
+        
+    - name: Generate coverage report
+      shell: msys2 {0}
+      run: |
+        gcov examples/test1.cpp
+        lcov --capture --directory . --output-file coverage.info
+        lcov --remove coverage.info '/usr/*' --output-file coverage.info
+      continue-on-error: true
+        
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        files: ./coverage.info
+        fail_ci_if_error: false
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
