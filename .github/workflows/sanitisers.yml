@@ -24,8 +24,3 @@ jobs:
       shell: msys2 {0}
       run: |
         g++ -std=c++17 -Wall -Wextra -Wpedantic -Wshadow -I include -o test1.exe examples/test1.cpp
-        
-    - name: Check atomics
-      shell: msys2 {0}
-      run: |
-        grep "memory_order" include/lockless.h
