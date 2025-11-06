@@ -6,6 +6,16 @@ A high-performance lock-free circular queue for Windows inter-process communicat
 
 This project implements a single-producer single-consumer (SPSC) lock-free queue that uses atomic operations instead of mutexes for thread synchronization. The queue uses Windows shared memory for efficient inter-process communication.
 
+## Performance
+
+Benchmarked on Windows 11 with MinGW-w64 GCC (O3 optimization):
+
+| Operation | Throughput |
+|-----------|------------|
+| Enqueue   | 6.33M ops/sec |
+| Dequeue   | 5.05M ops/sec |
+| RoundTrip | 8.59M ops/sec |
+
 ## Features
 
 - Lock-free operations using C++11 atomics
