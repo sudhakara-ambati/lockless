@@ -27,8 +27,10 @@ size_t size = 4096;
 queue.CreateSharedMemory(name, size);
 queue.EnqueueData(42);
 queue.CleanupSharedMemory();
-```cpp
+```
+
 Consumer Process:
+
 ```cpp
 #include "lockless.h"
 
