@@ -109,7 +109,6 @@
     <script id="main-script">
       'use strict';
       (function() {
-        // Colors from https://github.com/github/linguist/blob/master/lib/linguist/languages.yml
         const toolColors = {
           cargo: '#dea584',
           go: '#00add8',
@@ -146,13 +145,11 @@
 
           const data = window.BENCHMARK_DATA;
 
-          // Render header
           document.getElementById('last-update').textContent = new Date(data.lastUpdate).toString();
           const repoLink = document.getElementById('repository-link');
           repoLink.href = data.repoUrl;
           repoLink.textContent = data.repoUrl;
 
-          // Render footer
           document.getElementById('dl-button').onclick = () => {
             const dataUrl = 'data:,' + JSON.stringify(data, null, 2);
             const a = document.createElement('a');
@@ -161,7 +158,6 @@
             a.click();
           };
 
-          // Prepare data points for charts
           return Object.keys(data.entries).map(name => ({
             name,
             dataSet: collectBenchesPerTestCase(data.entries[name]),
@@ -183,7 +179,7 @@
                   label: name,
                   data: dataset.map(d => d.bench.value),
                   borderColor: color,
-                  backgroundColor: color + '60', // Add alpha for #rrggbbaa
+                  backgroundColor: color + '60',
                 }
               ],
             };
@@ -235,7 +231,6 @@
                 if (activeElems.length === 0) {
                   return;
                 }
-                // XXX: Undocumented. How can we know the index?
                 const index = activeElems[0]._index;
                 const url = dataset[index].commit.url;
                 window.open(url, '_blank');
@@ -274,7 +269,7 @@
           }
         }
 
-        renderAllChars(init()); // Start
+        renderAllChars(init());
       })();
     </script>
   </body>
